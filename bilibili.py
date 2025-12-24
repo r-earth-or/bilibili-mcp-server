@@ -135,4 +135,14 @@ def get_video_danmaku(bv_id):
 
 
 if __name__ == "__main__":
-    mcp.run(transport='stdio')
+    # Support both SSE (default for Docker/network) and stdio (for local development)
+    import sys
+    transport = 'sse' if '--sse' in sys.argv or os.environ.get('MCP_TRANSPORT') == 'sse' else 'stdio'
+    
+    if transport == 'sse':
+        # SSE transport needs host and port configuration
+        host = os.environ.get('MCP_HOST', '0.0.0.0')
+        port = int(os.environ.get('MCP_PORT', '8080'))
+        mcp.run(transport='sse', host=host, port=port)
+    else:
+        mcp.run(transport='stdio')
